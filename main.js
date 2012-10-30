@@ -204,20 +204,27 @@ function readBMPInfo(data) {
 	};
 }
 
+function readInfoFromBuffer(buffer, callback) {
+	var result;
+
+	try {
+
+		result = readInfoFromData(new DataReader(buffer));
+	} catch (err) {
+		return callback(err);
+	}
+
+	return callback(null, result);
+}
+
 ImageInfo.readInfoFromFile = function (path, callback) {
+    if (Buffer.isBuffer(path)) {
+        readInfoFromBuffer(path, callback);
+    } else {
+	    fs.readFile(path, function (err, buffer) {
 
-	fs.readFile(path, function (err, buffer) {
-
-		if (err) { return callback(err); }
-		var result;
-
-		try {
-
-			result = readInfoFromData(new DataReader(buffer));
-		} catch (err) {
-			return callback(err);
-		}
-
-		return callback(null, result);
-	});
+		    if (err) { return callback(err); }
+            return readInfoFromBuffer(buffer, callback);
+	    });
+    }
 };
