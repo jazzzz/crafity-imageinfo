@@ -12,7 +12,7 @@
  */
 var ImageInfo = exports
 	, fs = require('fs')
-//	, EXIF = require('./lib/exif')
+	, EXIF = require('./lib/exif')
 	;
 
 /**
@@ -45,7 +45,7 @@ function DataReader(buffer) {
 	this.getShortAt = function (iOffset, bBigEndian) {
 		var iShort = bBigEndian ?
 			(this.getByteAt(iOffset) << 8) + this.getByteAt(iOffset + 1)
-			: (this.getByteAt(iOffset + 1) << 8) + this.getByteAt(iOffset)
+			: (this.getByteAt(iOffset + 1) << 8) + this.getByteAt(iOffset);
 		if (iShort < 0) iShort += 65536;
 		return iShort;
 	};
@@ -100,7 +100,7 @@ function readInfoFromData(data) {
 		return readBMPInfo(data);
 	}
 	if (data.getByteAt(0) == 0x00 && data.getByteAt(1) == 0x00) {
-		return readICOInfo(data);
+//		return readICOInfo(data);
 	}
 
 	return {
@@ -130,7 +130,7 @@ function readPNGInfo(data) {
 		bpp: bpp,
 		alpha: alpha,
 		exif: {}
-	}
+	};
 }
 
 function readGIFInfo(data) {
@@ -148,7 +148,7 @@ function readGIFInfo(data) {
 		bpp: bpp,
 		alpha: false,
 		exif: {}
-	}
+	};
 }
 
 function readJPEGInfo(data) {
@@ -205,19 +205,17 @@ function readBMPInfo(data) {
 }
 
 ImageInfo.readInfoFromFile = function (path, callback) {
-	console.log("path", path);
+
 	fs.readFile(path, function (err, buffer) {
 
 		if (err) { return callback(err); }
 		var result;
 
-		console.log("No Error in reading fule!");
-
 		try {
 
 			result = readInfoFromData(new DataReader(buffer));
 		} catch (err) {
-			return callback(err)
+			return callback(err);
 		}
 
 		return callback(null, result);
